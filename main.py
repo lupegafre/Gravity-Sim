@@ -72,8 +72,8 @@ class Game(): # remove this class?
         self.debug_counter = 0
 
         # LOAD BODY TEMPLATE
-        self.templates = [solar_system, moons, earths, test_system, test_system_2, test_system_3, test_system_4, test_system_5, a] 
-        self.template_index = -1
+        self.templates = [moons, earths, test_system, test_system_2, test_system_3] 
+        self.template_index = 0
 
         self.celestialBodyList = []
         self.originalCelestialBodyList = []
@@ -87,9 +87,9 @@ class Game(): # remove this class?
 
         self.debug_list = []
 
-        songPath = 'Moonlight Sonata (by Beethoven) - Beethoven.mp3'
-        pygame.mixer.init()
-        pygame.mixer.music.load(songPath)
+        # songPath = 'Moonlight Sonata (by Beethoven) - Beethoven.mp3'
+        # pygame.mixer.init()
+        # pygame.mixer.music.load(songPath)
         # pygame.mixer.music.play()
 
         self.main_loop()
@@ -951,7 +951,7 @@ class Game(): # remove this class?
 
             self.event_handler()
 
-            # wrong
+            # very wrong
             self.timeElapsed += self.current_timescale / self.current_framerate
             frame +=1
 

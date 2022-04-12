@@ -85,7 +85,7 @@ earth3 = [
 moon = [
 	'Moon', 
 	0.07346, 
-	13475, 
+	23475, 
 	300, 
 	0, 
 	0, 
@@ -97,7 +97,7 @@ moon = [
 moon2 = [
 	'Moon2', 
 	0.07346, 
-	13475, 
+	23475, 
 	-300, 
 	0, 
 	0, 
@@ -109,7 +109,7 @@ moon2 = [
 moon3 = [
 	'Moon3', 
 	0.07346, 
-	13475, 
+	23475, 
 	0, 
 	-300, 
 	0, 
@@ -123,9 +123,9 @@ moon4 = [
 	0.07346, 
 	23475, 
 	0, 
-	800, 
+	300, 
 	0, 
-	debug_velocity, 
+	-1.167, 
 	0,
 	0,
 	white
@@ -413,7 +413,7 @@ test_system_2 = [moon, moon2, moon3, moon4, black_hole]
 test_system_3 = [jupiter2, moon5, moon6]
 test_system_4 = [jupiter3, moon7, moon8, moon9, moon10] # original is [jupiter3, moon7, moon8, moon9, moon10]
 test_system_5 = [jupiter3, moon11, moon12] # , moon11, moon12
-test_system_5 = [jupiter3, moon7, moon8,moon11, moon12]
+test_system_6 = [jupiter3, moon7, moon8,moon11, moon12]
 a = [jupiter3, moon11, moon4]
 
 # GENERATE RANDOM BODY

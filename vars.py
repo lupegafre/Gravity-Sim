@@ -18,7 +18,7 @@ gravitational_force_limit = 1 * (10 ** 23) # GRAVITATIONAL FORCE LIMIT, to avoid
 elasticity = 1 # BODY "ELASTICITY" FOR COLLISIONS
 
 # BODY TRAILS
-trail_length = 500
+trail_length = 0 # off due to terrible performance
 
 # COMET TAIL
 fadeaway = 0.95 # how quickly tail fades away
