@@ -23,9 +23,12 @@ class CelestialBody:
 		self.mass = mass * (10 ** 24)
 		self.diameter = diameter
 
+		self.accelerationX = 0.0
+		self.accelerationY = 0.0
+		self.accelerationZ = 0.0
+
 		self.accelerationModule = vector_module(0, 0)
 		self.accelerationAngle = math.atan2(0, 0)
-		self.accelerationZ = 0.0
 
 		self.velocityX = velocityX
 		self.velocityY = velocityY
@@ -83,19 +86,30 @@ class CelestialBody:
 			self.circleOfInfluence.append(body)
 		self.circleOfInfluence = list(set(self.circleOfInfluence)) # uniques only
 
-	def update_acceleration(self):
+	def update_acceleration(self): # all the angles are wrong for z axis WRONGWRONGWRONGWRONGWRONGWRONG
+		self.accelerationZ = 0 # aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 		if self.influenced_by_gravity:
 			for body in self.circleOfInfluence:
-				d = threeD_distance(body, self)
-				gravitationalForce = gravitational_force(self.mass, body.mass, d)
+				if body.has_gravity:
+					d = threeD_distance(body, self)
 
-				angle = math.atan2((body.y - self.y), (body.x - self.x)) # atan2 is from -pi to pi (360°)
+					gravitationalForce = gravitational_force(self.mass, body.mass, d)
 
-				self.forceSummationX += gravitationalForce * math.cos(angle)
-				self.forceSummationY += gravitationalForce * math.sin(angle)
+					angle = math.atan2((body.y - self.y), (body.x - self.x))
 
-				angleZ = math.atan2((body.y - self.y), (body.z - self.z)) # falsch?
-				self.forceSummationZ += gravitationalForce * math.cos(angleZ)
+					self.forceSummationX += gravitationalForce * math.cos(angle)
+					self.forceSummationY += gravitationalForce * math.sin(angle)
+
+					# use both!?
+					angleZY = math.atan2((body.y - self.y), (body.z - self.z))
+					angleZX = math.atan2((body.x - self.x), (body.z - self.z)) 
+
+					# are quadrants the issue?
+
+					self.forceSummationZ += gravitationalForce * math.cos(angleZY)
+
+					if self.debug_verbose:
+						print(f'D{d}')	
 
 		else:
 			self.forceSummationX = 0
@@ -122,12 +136,15 @@ class CelestialBody:
 		):
 
 		if self.can_move:
+			time = (current_timescale / current_framerate)
+
 			# try to do this without getting vector components
 			accelerationX = self.accelerationModule * math.cos(self.accelerationAngle)
 			accelerationY = self.accelerationModule * math.sin(self.accelerationAngle)
-			velocityX = self.velocityModule * math.cos(self.velocityAngle) + accelerationX * (current_timescale / current_framerate)
-			velocityY = self.velocityModule * math.sin(self.velocityAngle) + accelerationY * (current_timescale / current_framerate)
-			self.velocityZ = self.velocityZ + self.accelerationZ * (current_timescale / current_framerate)
+
+			velocityX = self.velocityModule * math.cos(self.velocityAngle) + accelerationX * time
+			velocityY = self.velocityModule * math.sin(self.velocityAngle) + accelerationY * time
+			self.velocityZ += self.accelerationZ * time
 
 			self.velocityModule = vector_module(velocityX, velocityY)
 			self.velocityAngle = math.atan2(velocityY, velocityX)
@@ -146,11 +163,13 @@ class CelestialBody:
 		):
 
 		if self.can_move:
+			time = (current_timescale / current_framerate) # is this correct?
+
 			accelerationX = self.accelerationModule * math.cos(self.accelerationAngle)
 			accelerationY = self.accelerationModule * math.sin(self.accelerationAngle)
-			self.x = self.x + self.velocityModule * math.cos(self.velocityAngle) * (current_timescale / current_framerate) + (accelerationX * (current_timescale / current_framerate) ** 2) / 2
-			self.y = self.y + self.velocityModule * math.sin(self.velocityAngle) * (current_timescale / current_framerate) + (accelerationY * (current_timescale / current_framerate) ** 2) / 2		
-			self.z = self.z + self.velocityZ * (current_timescale / current_framerate) + (self.accelerationZ * (current_timescale / current_framerate) ** 2) / 2		
+			self.x = self.x + self.velocityModule * math.cos(self.velocityAngle) * time + (accelerationX * (time ** 2)) / 2
+			self.y = self.y + self.velocityModule * math.sin(self.velocityAngle) * time + (accelerationY * (time ** 2)) / 2		
+			self.z = self.z + self.velocityZ * time + (self.accelerationZ * (time ** 2)) / 2		
 
 			if self.debug_verbose:
 				print(f'X{self.x:3f} Y{self.y:3f} Z{self.z:3f}')		
@@ -215,13 +234,13 @@ class Camera():
 	def __init__(self,
 		x: float = screen_width / 2,
 		y: float = screen_height / 2,
-		zoom: float = 1.0
+		zoom: float = 1
 		):
 
 		self.x = x
 		self.y = y
 		self.zoom = zoom
-		self.zoom_in = False
+		self.zoom_in = True
 		self.rotation_y = 0 # math.pi / 2 to start at 90°
 
 	def reset(self):

@@ -121,11 +121,11 @@ moon3 = [
 moon4 = [
 	'Moon4', 
 	0.07346, 
-	13475, 
+	23475, 
 	0, 
-	300, 
+	800, 
 	0, 
-	-1.167, 
+	debug_velocity, 
 	0,
 	0,
 	white
@@ -210,13 +210,13 @@ moon10 = [
 moon11 = [
 	'Moon11', 
 	0.07346, 
-	25475, 
-	0, 
+	23475, 
 	0, 
 	-800, 
-	debug_velocity, 
+	0, 
+	0, 
 	0,
-	0,
+	debug_velocity,
 	red
 	]
 moon12 = [
@@ -226,7 +226,7 @@ moon12 = [
 	0, 
 	0, 
 	800, 
-	-debug_velocity,
+	debug_velocity,
 	0,
 	0, 
 	light_gray
@@ -414,6 +414,7 @@ test_system_3 = [jupiter2, moon5, moon6]
 test_system_4 = [jupiter3, moon7, moon8, moon9, moon10] # original is [jupiter3, moon7, moon8, moon9, moon10]
 test_system_5 = [jupiter3, moon11, moon12] # , moon11, moon12
 test_system_5 = [jupiter3, moon7, moon8,moon11, moon12]
+a = [jupiter3, moon11, moon4]
 
 # GENERATE RANDOM BODY
 def proc_gen_body( 

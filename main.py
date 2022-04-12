@@ -1,4 +1,5 @@
 import pygame
+
 from classes import *
 from vars import *
 from functions import *
@@ -71,7 +72,7 @@ class Game(): # remove this class?
         self.debug_counter = 0
 
         # LOAD BODY TEMPLATE
-        self.templates = [solar_system, moons, earths, test_system, test_system_2, test_system_3, test_system_4, test_system_5] 
+        self.templates = [solar_system, moons, earths, test_system, test_system_2, test_system_3, test_system_4, test_system_5, a] 
         self.template_index = -1
 
         self.celestialBodyList = []
@@ -85,6 +86,11 @@ class Game(): # remove this class?
         # self.set_orbital_velocities()
 
         self.debug_list = []
+
+        songPath = 'Moonlight Sonata (by Beethoven) - Beethoven.mp3'
+        pygame.mixer.init()
+        pygame.mixer.music.load(songPath)
+        # pygame.mixer.music.play()
 
         self.main_loop()
 
@@ -119,10 +125,8 @@ class Game(): # remove this class?
 
         # DEBUG
         self.celestialBodyList[0].can_move = False
-        for body in self.celestialBodyList:
-            body.can_move = True
-
-        self.celestialBodyList[1].debug_verbose = False
+        self.celestialBodyList[1].has_gravity = False
+        self.celestialBodyList[2].has_gravity = False
 
 #—————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -135,7 +139,7 @@ class Game(): # remove this class?
 #—————————————————————————————————————————————————————————————————————————————————————————————————
   
 
-    def renderizer(self):
+    def renderizer(self): # improve this
         render_order = self.celestialBodyList.copy()
         # render_order = reversed(sorted(render_order, key=lambda body: body.z * math.cos(self.camera.rotation_y)))
         # should it be (body.x * math.sin(self.camera.rotation_y) + body.z * math.cos(self.camera.rotation_y))????
@@ -187,7 +191,7 @@ class Game(): # remove this class?
         body_radius = ((body.diameter / 2) / self.current_diameter_scale)
         r = body_radius * lerp(1, 0.1, mod * math.sin(ang + self.camera.rotation_y) / 1000)
 
-        pygame.draw.circle(self.screen, body.color, ((x + self.camera.x) * self.camera.zoom, y), r * self.camera.zoom)
+        pygame.draw.circle(self.screen, body.color, ((x + self.camera.x) * zoom_factor(self.camera), y), r * self.camera.zoom)
 
 #—————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -242,7 +246,6 @@ class Game(): # remove this class?
             ang = math.atan2(body.z, body.x)
             x = mod * math.cos(ang + self.camera.rotation_y)
             x += (body.diameter / 2) / self.current_diameter_scale
-
 
             xi = (x + self.camera.x) * self.camera.zoom
             yi = (body.y + self.camera.y) * self.camera.zoom
@@ -472,9 +475,9 @@ class Game(): # remove this class?
         if keys[pygame.K_KP_PERIOD]:
             self.current_timescale *= -1
         if keys[pygame.K_KP_PLUS]:
-            self.current_timescale += key_value
+            self.current_timescale += key_value / 20
         if keys[pygame.K_KP_MINUS]:
-            self.current_timescale -= key_value
+            self.current_timescale -= key_value / 20
         if keys[pygame.K_KP_ENTER]:
             self.current_timescale = timescale
 
@@ -696,7 +699,7 @@ class Game(): # remove this class?
 
 
     # DON'T LET BODY LEAVE BOUNDARIES
-    def boundary_check(self, body):
+    def boundary_check(self, body): # bondary is not exactly 3d, should rotate with camera
         vx, vy = vector_components(body)
         ang = math.atan2(vy, -vx)
         if body.x - (body.diameter / 2) / self.current_diameter_scale < boundary[0]:
@@ -706,7 +709,7 @@ class Game(): # remove this class?
             body.x = boundary[1] - (body.diameter / 2) / self.current_diameter_scale
             body.velocityAngle = ang
 
-        vx, vy = vector_components(body)
+        vx, vy = vector_components(body) # why getting this twice?
         ang = math.atan2(-vy, vx)
         if body.y - (body.diameter / 2) / self.current_diameter_scale < boundary[2]:
             body.y = boundary[2] + (body.diameter / 2) / self.current_diameter_scale
@@ -714,6 +717,13 @@ class Game(): # remove this class?
         elif body.y + (body.diameter / 2) / self.current_diameter_scale > boundary[3]:
             body.y = boundary[3] - (body.diameter / 2) / self.current_diameter_scale
             body.velocityAngle = ang
+
+        if body.z - (body.diameter / 2) / self.current_diameter_scale < boundary[4]:
+            body.z = boundary[4] + (body.diameter / 2) / self.current_diameter_scale
+            body.velocityZ *= -1
+        elif body.z + (body.diameter / 2) / self.current_diameter_scale > boundary[5]:
+            body.z = boundary[5] - (body.diameter / 2) / self.current_diameter_scale
+            body.velocityZ *= -1
 
 #—————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -739,14 +749,16 @@ class Game(): # remove this class?
                     body.velocityAngle = 2 * collisionTangentAngle + body.velocityAngle
                     other_body.velocityAngle = 2 * collisionTangentAngle + other_body.velocityAngle
 
-                    body.velocityModule, other_body.velocityModule = elastic_collision(body.velocityModule, body.mass, other_body.velocityModule, other_body.mass)
+                    va, vb = elastic_collision(body.velocityModule, body.mass, other_body.velocityModule, other_body.mass)
 
                     unstuck_angle = 0.5 * math.pi + collisionTangentAngle
     
                     if body.can_move: # if not working?
+                        body.velocityModule = va
                         body.x -= math.cos(unstuck_angle)
                         body.y += math.sin(unstuck_angle)
                     if other_body.can_move: # if not working?
+                        other_body.velocityModule = vb
                         other_body.x -= math.cos(unstuck_angle)
                         other_body.y += math.sin(unstuck_angle)
 
@@ -850,6 +862,13 @@ class Game(): # remove this class?
         else:
             print('No zoom change')
 
+        # zoom based on mouse position
+        # self.camera.x = ((screen_width / 2) / self.camera.zoom - (self.mouseX - screen_width / 2))
+        # self.camera.y = ((screen_height / 2) / self.camera.zoom - (self.mouseY - screen_height / 2))
+
+        # self.camera.x = (screen_width / 2) / self.camera.zoom
+        # self.camera.y = (screen_height / 2) / self.camera.zoom
+
         # CAMERA MUST ALWAYS BE INSIDE BOUNDARIES (pan_camera () applies boundary limits)
         self.pan_camera(0, 0)
 
@@ -896,19 +915,13 @@ class Game(): # remove this class?
             for step in range(int(self.current_timescale * physics_step)): # O(n²)
                 for i, body in enumerate(self.celestialBodyList):
                     body.update_acceleration()
-                    body.update_position(self.current_timescale)                            
-                    body.update_velocity(self.current_timescale) # maybe remove / merge this
-                    self.collision_check(body)
+                    body.update_position(self.current_timescale / physics_step) 
+                    body.update_velocity(self.current_timescale / physics_step) # maybe remove / merge this
+                    # self.collision_check(body)
 
-            
             for i, body in enumerate(self.celestialBodyList):
 
                 self.boundary_check(body)
-
-                # body.update_acceleration()
-                # body.update_velocity(self.current_timescale)
-                # body.update_position(self.current_timescale)                            
-                # self.collision_check(body)
 
                 self.draw_body_labels(body, i)
 
@@ -938,6 +951,7 @@ class Game(): # remove this class?
 
             self.event_handler()
 
+            # wrong
             self.timeElapsed += self.current_timescale / self.current_framerate
             frame +=1
 

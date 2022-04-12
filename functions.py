@@ -284,7 +284,11 @@ def debug_printer(strings: list = []):
 
 
 # DOT PRODUCT BETWEEN TWO VECTORS
-def vectors_dot(body1, body2):
+def vectors_dot(
+	body1, 
+	body2
+	):
+
 	x = body1.x * body2.x
 	y = body1.y * body2.y
 	z = body1.z * body2.z
@@ -299,6 +303,17 @@ def vectors_cross(body1, body2):
 	y = body1.z * body2.x - body1.x * body2.z
 	z = body1.x * body2.y - body1.y * body2.x
 	return (x, y, z) # is this correct?
+
+#—————————————————————————————————————————————————————————————————————————————————————————————————
+
+
+def zoom_factor(camera): # implement and test
+	factor = 0
+	if camera.zoom_in:
+		factor = camera.zoom
+	else:
+		factor = 1 / camera.zoom
+	return factor
 
 #—————————————————————————————————————————————————————————————————————————————————————————————————
 #—————————————————————————————————————————————————————————————————————————————————————————————————

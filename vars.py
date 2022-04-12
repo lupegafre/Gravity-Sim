@@ -6,8 +6,8 @@ screen_height = 800
 
 ui_height = 50 # SIZE OF THE UI TAB
 
-num = 1000 # SIZE OF THE UNIVERSE
-boundary = (-num, num, -num, num) # -x, +x, -y, +y
+num = 1500 # SIZE OF THE UNIVERSE
+boundary = (-num, num, -num, num, -num, num) # -x, +x, -y, +y, -z, +z
 
 framerate = 144 # in Hz, can be higher than set value for some reason
 timescale = 1 # SIMULATION SPEED
